@@ -1,0 +1,208 @@
+<div class="container mt-4">
+  <div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-dark text-warning">
+      <h2 class="mb-0">Inscrição para Conferência</h2>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="inscricaoForm" (ngSubmit)="onSubmit()">
+        
+        <div class="row mb-4">
+          <div class="col-12">
+            <h4 class="border-bottom pb-2 text-secondary">Informações do Evento</h4>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="evento" class="form-label text-primary">Evento</label>
+            <select 
+              id="evento" 
+              formControlName="evento" 
+              class="form-select border-primary"
+              [ngClass]="{'is-invalid': evento?.invalid && (evento?.dirty || evento?.touched)}">
+              <option value="">Selecione um evento</option>
+              <option *ngFor="let ev of eventos" [value]="ev">{{ev}}</option>
+            </select>
+            <div *ngIf="evento?.invalid && (evento?.dirty || evento?.touched)" class="invalid-feedback">
+              <div *ngIf="evento?.errors?.['required']">O evento é obrigatório.</div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="modalidade" class="form-label text-primary">Modalidade</label>
+            <select 
+              id="modalidade" 
+              formControlName="modalidade" 
+              class="form-select border-primary"
+              [ngClass]="{'is-invalid': modalidade?.invalid && (modalidade?.dirty || modalidade?.touched)}">
+              <option value="">Selecione uma modalidade</option>
+              <option *ngFor="let mod of modalidades" [value]="mod">{{mod}}</option>
+            </select>
+            <div *ngIf="modalidade?.invalid && (modalidade?.dirty || modalidade?.touched)" class="invalid-feedback">
+              <div *ngIf="modalidade?.errors?.['required']">A modalidade é obrigatória.</div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="dataInicio" class="form-label text-primary">Data de Início</label>
+            <input 
+              type="date" 
+              id="dataInicio" 
+              formControlName="dataInicio" 
+              class="form-control border-primary"
+              [ngClass]="{'is-invalid': dataInicio?.invalid && (dataInicio?.dirty || dataInicio?.touched)}">
+            <div *ngIf="dataInicio?.invalid && (dataInicio?.dirty || dataInicio?.touched)" class="invalid-feedback">
+              <div *ngIf="dataInicio?.errors?.['required']">A data de início é obrigatória.</div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="dataTermino" class="form-label text-primary">Data de Término</label>
+            <input 
+              type="date" 
+              id="dataTermino" 
+              formControlName="dataTermino" 
+              class="form-control border-primary"
+              [ngClass]="{'is-invalid': (dataTermino?.invalid || inscricaoForm.errors?.['dataTerminoInvalida']) && (dataTermino?.dirty || dataTermino?.touched)}">
+            <div *ngIf="dataTermino?.invalid && (dataTermino?.dirty || dataTermino?.touched)" class="invalid-feedback">
+              <div *ngIf="dataTermino?.errors?.['required']">A data de término é obrigatória.</div>
+            </div>
+            <div *ngIf="inscricaoForm.errors?.['dataTerminoInvalida'] && (dataTermino?.dirty || dataTermino?.touched)" class="text-danger small mt-1">
+              A data de término deve ser posterior à data de início.
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+            <h4 class="border-bottom pb-2 mb-0 text-secondary">Participantes</h4>
+            <button type="button" class="btn btn-info text-white" (click)="adicionarParticipante()">
+              + Adicionar Participante
+            </button>
+          </div>
+          <div *ngIf="participantes.length === 0" class="col-12 mb-3">
+            <div class="alert alert-warning">
+              É necessário adicionar pelo menos um participante.
+            </div>
+          </div>
+          <div class="col-12" formArrayName="participantes">
+            <div *ngFor="let participante of participantes.controls; let i = index" [formGroupName]="i" class="card mb-3 border shadow-sm">
+              <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Participante {{i + 1}}</h5>
+                <button 
+                  type="button" 
+                  class="btn btn-outline-light btn-sm" 
+                  (click)="removerParticipante(i)"
+                  [disabled]="participantes.length === 1">
+                  Remover
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label [for]="'nomeCompleto' + i" class="form-label text-primary">Nome Completo</label>
+                    <input 
+                      [id]="'nomeCompleto' + i" 
+                      type="text" 
+                      formControlName="nomeCompleto" 
+                      class="form-control border-primary"
+                      [ngClass]="{'is-invalid': participante.get('nomeCompleto')?.invalid && (participante.get('nomeCompleto')?.dirty || participante.get('nomeCompleto')?.touched)}">
+                    <div *ngIf="participante.get('nomeCompleto')?.invalid && (participante.get('nomeCompleto')?.dirty || participante.get('nomeCompleto')?.touched)" class="invalid-feedback">
+                      <div *ngIf="participante.get('nomeCompleto')?.errors?.['required']">O nome completo é obrigatório.</div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label [for]="'email' + i" class="form-label text-primary">E-mail</label>
+                    <input 
+                      [id]="'email' + i" 
+                      type="email" 
+                      formControlName="email" 
+                      class="form-control border-primary"
+                      [ngClass]="{'is-invalid': participante.get('email')?.invalid && (participante.get('email')?.dirty || participante.get('email')?.touched)}">
+                    <div *ngIf="participante.get('email')?.invalid && (participante.get('email')?.dirty || participante.get('email')?.touched)" class="invalid-feedback">
+                      <div *ngIf="participante.get('email')?.errors?.['required']">O e-mail é obrigatório.</div>
+                      <div *ngIf="participante.get('email')?.errors?.['email']">Insira um e-mail válido.</div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label [for]="'cpf' + i" class="form-label text-primary">CPF (XXX.XXX.XXX-XX)</label>
+                    <input 
+                      [id]="'cpf' + i" 
+                      type="text" 
+                      formControlName="cpf" 
+                      class="form-control border-primary"
+                      placeholder="000.000.000-00"
+                      [ngClass]="{'is-invalid': participante.get('cpf')?.invalid && (participante.get('cpf')?.dirty || participante.get('cpf')?.touched)}">
+                    <div *ngIf="participante.get('cpf')?.invalid && (participante.get('cpf')?.dirty || participante.get('cpf')?.touched)" class="invalid-feedback">
+                      <div *ngIf="participante.get('cpf')?.errors?.['required']">O CPF é obrigatório.</div>
+                      <div *ngIf="participante.get('cpf')?.errors?.['cpfInvalido']">O CPF deve estar no formato XXX.XXX.XXX-XX.</div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label [for]="'tipoIngresso' + i" class="form-label text-primary">Tipo de Ingresso</label>
+                    <select 
+                      [id]="'tipoIngresso' + i" 
+                      formControlName="tipoIngresso" 
+                      class="form-select border-primary"
+                      [ngClass]="{'is-invalid': participante.get('tipoIngresso')?.invalid && (participante.get('tipoIngresso')?.dirty || participante.get('tipoIngresso')?.touched)}">
+                      <option value="">Selecione um tipo</option>
+                      <option *ngFor="let tipo of tiposIngresso" [value]="tipo">{{tipo}}</option>
+                    </select>
+                    <div *ngIf="participante.get('tipoIngresso')?.invalid && (participante.get('tipoIngresso')?.dirty || participante.get('tipoIngresso')?.touched)" class="invalid-feedback">
+                      <div *ngIf="participante.get('tipoIngresso')?.errors?.['required']">O tipo de ingresso é obrigatório.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button 
+            type="submit" 
+            class="btn btn-dark btn-lg text-warning"
+            [disabled]="inscricaoForm.invalid || participantes.length === 0">
+            Finalizar Inscrição
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="inscricaoForm.valid && (inscricaoForm.dirty || inscricaoForm.touched)" class="card mt-4 shadow-sm border-0">
+    <div class="card-header bg-info text-white">
+      <h3 class="mb-0">Resumo da Inscrição</h3>
+    </div>
+    <div class="card-body">
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h5>Informações do Evento</h5>
+          <p><strong>Evento:</strong> {{ inscricaoForm.get('evento')?.value }}</p>
+          <p><strong>Modalidade:</strong> {{ inscricaoForm.get('modalidade')?.value }}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Data de Início:</strong> {{ inscricaoForm.get('dataInicio')?.value | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Data de Término:</strong> {{ inscricaoForm.get('dataTermino')?.value | date:'dd/MM/yyyy' }}</p>
+        </div>
+      </div>
+      <h5>Participantes ({{ participantes.length }})</h5>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead class="table-dark text-warning">
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>CPF</th>
+              <th>Tipo de Ingresso</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let participante of participantes.controls; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ participante.get('nomeCompleto')?.value }}</td>
+              <td>{{ participante.get('email')?.value }}</td>
+              <td>{{ participante.get('cpf')?.value }}</td>
+              <td>{{ participante.get('tipoIngresso')?.value }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
